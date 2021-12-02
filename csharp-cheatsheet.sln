@@ -9,6 +9,13 @@ EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code", "Code", "{3C439600-9137-4F1C-9F5B-A885E1D4C7EE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Records", "Records", "{347D6E32-63F7-4EC2-A141-CC3E46442D34}"
+ProjectSection(SolutionItems) = preProject
+	records\README.md = records\README.md
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code", "Code", "{E282268E-AF9F-4B01-BCF4-7947429F0CD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,5 +30,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3C439600-9137-4F1C-9F5B-A885E1D4C7EE} = {8FA5993C-8EE8-4792-B20C-490D3A531A10}
 		{EC132F96-2F5E-4D70-8AEE-672629EFA6B7} = {3C439600-9137-4F1C-9F5B-A885E1D4C7EE}
+		{E282268E-AF9F-4B01-BCF4-7947429F0CD8} = {347D6E32-63F7-4EC2-A141-CC3E46442D34}
 	EndGlobalSection
 EndGlobal
