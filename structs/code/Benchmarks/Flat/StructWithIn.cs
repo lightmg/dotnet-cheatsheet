@@ -1,10 +1,10 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.FlatBenchmarks
+namespace Benchmarks.Flat
 {
     [MemoryDiagnoser]
-    public class StructWithInBenchmark
+    public class StructWithIn
     {
         [Benchmark]
         public void GetLength()

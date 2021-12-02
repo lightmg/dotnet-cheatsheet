@@ -9,17 +9,25 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 
+var columns = new[]
+{
+    new SimpleColumnProvider(TargetMethodColumn.Namespace, TargetMethodColumn.Type),
+    DefaultColumnProviders.Statistics,
+    DefaultColumnProviders.Params,
+    DefaultColumnProviders.Metrics,
+    DefaultColumnProviders.Job
+};
+
 var config = ManualConfig.CreateEmpty()
-    .AddColumnProvider(DefaultColumnProviders.Instance)
+    .AddColumnProvider(columns)
     .AddLogger(ConsoleLogger.Default)
     .WithOptions(ConfigOptions.JoinSummary)
     .WithOptions(ConfigOptions.DisableLogFile)
-    .WithOptions(ConfigOptions.DisableOptimizationsValidator)
     .WithOrderer(new DefaultOrderer(SummaryOrderPolicy.Method, MethodOrderPolicy.Alphabetical));
 
-var runResult = BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).Run(config: config).Single();
-var exportedFileName = MarkdownExporter.GitHub.ExportToFiles(runResult, ConsoleLogger.Unicode).Single();
-File.Move(exportedFileName, Path.Combine(GetProjectRootDirectory(), "README.md"), true);
+var runResult = BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).RunAllJoined(config);
+var exportedFile = MarkdownExporter.GitHub.ExportToFiles(runResult, ConsoleLogger.Unicode).Single();
+File.Move(exportedFile, Path.Combine(GetProjectRootDirectory(), "README.md"), true);
 
 string GetProjectRootDirectory()
 {

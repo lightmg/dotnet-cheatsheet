@@ -2,10 +2,10 @@
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.ArrayBenchmarks
+namespace Benchmarks.Array
 {
     [MemoryDiagnoser]
-    public class ClassWithFieldsBenchmarks
+    public class Struct
     {
         private static readonly Point3D[] Points = Seed.Coords.Select(p => new Point3D(p.x, p.y, p.z)).ToArray();
 
@@ -34,13 +34,13 @@ namespace Benchmarks.ArrayBenchmarks
             );
         }
 
-        private static double GetSubtractSquare(in int point1, in int point2)
+        private static double GetSubtractSquare(int point1, int point2)
         {
             var d = point2 - point1;
             return d * d;
         }
 
-        private class Point3D
+        private readonly struct Point3D
         {
             public readonly int X;
             public readonly int Y;

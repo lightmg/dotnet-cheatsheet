@@ -1,10 +1,10 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks.FlatBenchmarks
+namespace Benchmarks.Flat
 {
     [MemoryDiagnoser]
-    public class StructBenchmark
+    public class Class
     {
         [Benchmark]
         public void GetLength()
@@ -30,7 +30,7 @@ namespace Benchmarks.FlatBenchmarks
             return d * d;
         }
 
-        private readonly struct Line
+        private class Line
         {
             public Line(Point p1, Point p2)
             {
@@ -38,11 +38,11 @@ namespace Benchmarks.FlatBenchmarks
                 P2 = p2;
             }
 
-            public readonly Point P1;
-            public readonly Point P2;
+            public Point P1 { get; }
+            public Point P2 { get; }
         }
 
-        private readonly struct Point
+        private class Point
         {
             public Point(double x, double y)
             {
@@ -50,8 +50,8 @@ namespace Benchmarks.FlatBenchmarks
                 Y = y;
             }
 
-            public readonly double X;
-            public readonly double Y;
+            public double X { get; }
+            public double Y { get; }
         }
     }
 }
