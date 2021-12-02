@@ -1,1 +1,2 @@
 # dotnet-cheatsheet
+- [Структуры](/structs/)
