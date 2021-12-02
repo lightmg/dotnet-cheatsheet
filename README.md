@@ -1,3 +1,3 @@
 # dotnet-cheatsheet
-- [Структуры](/structs/)
-- [records](/records/)
+- [structs](./structs)
+- [records](./records)
