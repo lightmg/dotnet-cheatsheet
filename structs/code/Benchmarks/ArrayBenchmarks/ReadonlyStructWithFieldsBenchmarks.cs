@@ -2,7 +2,7 @@
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 
-namespace Benchmarks
+namespace Benchmarks.ArrayBenchmarks
 {
     [MemoryDiagnoser]
     public class StructBenchmarks
