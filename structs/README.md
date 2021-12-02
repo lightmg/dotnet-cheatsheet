@@ -1,6 +1,6 @@
-## struct
+# struct
 
-### Отличие от `class`
+## Отличие от `class`
 - `class` - reference type, `struct` - value type
 	- Передача `class` как аргумента = передача ссылки; передача `struct` - создание копии участка памяти 
 		- Не всегда - см. [модификаторы](#Модификаторы)
@@ -15,11 +15,7 @@
 	- При обращении к свойствам и методам non-readonly структуры, хранимой в readonly-поле или переданной в метод как in, создается её копия
 	- Предотвращает модификацию структуры
 
-### C# 10 Features
-- До C# 10 нельзя было переопределить безпараметрический конструктор и значения свойств/полей по умолчанию
-- Начиная с C# 10 добавлена поддержка оператора `with` для структур
-
-### Модификаторы
+## Модификаторы
 - Модификаторы типа
 	- `readonly` - make structs immutable ~~again~~. В некоторых случаях предотвращает создание defensive copy
 	- `ref` - говорит компилятору, что структура может быть размещена только на стеке, но не в heap
@@ -30,7 +26,7 @@
 	- `ref` - передается ссылка на структуру, копирование не происходит. Значение структуры вне метода может быть изменено внутри метода
 	- `in` - под капотом тот же `ref`, но запрещает изменение
 
-### Влияние на производительность
+## Влияние на производительность
 - Для `struct` не нужно аллоцировать место в heap'e, GC не нужно отслеживать ссылки, не нужно делать дефрагментацию памяти
 	- Исключение - упаковка (boxing)
 - Много операций копирования структуры - потенциальный bottleneck, если вызывается многократно (сотни тысяч раз)
@@ -38,51 +34,63 @@
 - В массивах хранятся значения, а не ссылки
 	- Процессорные промахи в кэш случаются реже (при копировании из RAM в CPU cache копируются целые страницы)
 
-### Когда и как следует использовать
-- Универсального правила - нет, но есть общие рекомендации. Отклонение требует понимания работы struct'ов и должно быть осознанным
-	- Все структуры рекомендуется делать `readonly` - меньше багов, меньше копирований
-	- Рекомендуется в методах, принимающих структуру, помечать соответствующий параметр как `in`
-	- Свойства желательно заменить на поля - так же помогает избежать не нужных операций копирования
-	- Желательно чтобы структура имела малый размер (<16 байт)
-		- Больше - допустимо, но нужно убедиться, что структура не будет копироваться слишком часто
+## Когда и как следует использовать
+### Общие рекомендации
+Важно понимать что универсального правила нет. Есть общие рекомендации, которые помогут сохранить производительность и избежать большинства багов. Отклонение требует понимания работы struct'ов и должно быть осознанным
+- Все структуры рекомендуется делать `readonly` - меньше багов, меньше копирований
+- Рекомендуется в методах, принимающих структуру, помечать соответствующий параметр как `in`
+- Свойства желательно заменить на поля - так же помогает избежать не нужных операций копирования
+- Желательно чтобы структура имела малый размер (<16 байт)
+	- Больше - допустимо, но нужно убедиться, что структура не будет копироваться слишком часто
 
-- Скорее всего, структура подойдет в следующих случаях:
-	- Набор параметров метода, сгруппированных в тип, или же возвращаемое методом значение
-	- Типы, которые очень похожи на примитивы (например, `DateTime`, `TimeSpan` или [`ByteSize`](https://github.com/omar/ByteSize))
-	- Конфигурация, предполагающая Fluent API (разного рода Builder'ы)
-	- Обёртка над примитивами чтобы добавить ясности и избежать ошибок
-		- Например, если в клиентской библиотеке в качестве аргумента конструктора нужно передать базовый адрес API:
-		```c#
-			public readonly struct ApiUri
-			{
-				public readonly string Address;
-
-				public ApiUri(string address) => this.Address = address;
-
-				public static WebAppDomain Local => new WebAppDomain("https://localhost:5001/");
-			}
-		```
-
-- С осторожностью
-	- mutable структуры могут стать источником неочевидных багов. Например:
-		```c#
-		class ReadOnlyEnumerator
+### Common use cases
+- Набор параметров метода, сгруппированных в тип, или же возвращаемое методом значение
+- Типы, которые очень похожи на примитивы (например, `DateTime`, `Span<>` или [`ByteSize`](https://github.com/omar/ByteSize))
+- Конфигурация, предполагающая Fluent API (разного рода Builder'ы)
+- Обёртка над примитивами чтобы добавить ясности и избежать ошибок
+	- Например, если в клиентской библиотеке в качестве аргумента конструктора нужно передать базовый адрес API:
+	```c#
+		public readonly struct ApiUri
 		{
-			private readonly List<int>.Enumerator _enumerator;
-		
-			public ReadOnlyEnumerator(List<int> list) =>
-				_enumerator = list.GetEnumerator();
+			public readonly string Address;
 
-			public int GetFirstElement()
-			{
-				_enumerator.MoveNext();
-				return _enumerator.Current;
-			}
-		
+			public ApiUri(string address) => this.Address = address;
+
+			public static WebAppDomain Local => new WebAppDomain("https://localhost:5001/");
 		}
-		```
-    Вызов `new ReadOnlyEnumerator(new List<int>{1,2}).GetFirstElement();` вернёт 0, т.к. `List<>.Enumerator` является mutable структурой. 
-		В классе она помещена в readonly-поле, а значит при обращении создается defensive copy, и `MoveNext()` вызывается по сути для другого экземпляра
+	```
 
-- [ErrorProne.NET](https://github.com/SergeyTeplyakov/ErrorProne.NET#struct-analyzers)
-	- Набор Roslyn анализаторов кода, включающих в том числе анализ использования struct'ов
+### С осторожностью
+- mutable структуры могут стать источником неочевидных багов. Например:
+	```c#
+	class ReadOnlyEnumerator
+	{
+		private readonly List<int>.Enumerator _enumerator;
+	
+		public ReadOnlyEnumerator(List<int> list) =>
+			_enumerator = list.GetEnumerator();
+
+		public int GetFirstElement()
+		{
+			_enumerator.MoveNext();
+			return _enumerator.Current;
+		}
+	}
+	```
+    Вызов `new ReadOnlyEnumerator(new List<int>{1,2}).GetFirstElement();` вернёт 0, т.к. `List<>.Enumerator` является mutable структурой. 
+    В классе она помещена в readonly-поле, а значит при обращении создается defensive copy, и `MoveNext()` вызывается по сути для другого экземпляра
+
+## C# 10 Features
+- До C# 10 нельзя было переопределить безпараметрический конструктор и значения свойств/полей по умолчанию
+- Начиная с C# 10 добавлена поддержка оператора `with` для структур
+
+
+## Материалы и источники
+
+- [Краткий ликбез о производительности \[RU\]](https://habr.com/ru/company/microsoft/blog/423053/)
+- [Коротко о модификаторах структук \[RU\]](https://andrey.moveax.ru/post/csharp-features-v7-2#newsemantic)
+- [Когда использовать struct - MSDN \[EN\]](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/choosing-between-class-and-struct)
+- [Защитные копии - MS devblogs \[EN\]](https://devblogs.microsoft.com/premier-developer/the-in-modifier-and-the-readonly-structs-in-c/)
+- [Падения производительности - MS devblogs \[EN\]](https://devblogs.microsoft.com/premier-developer/performance-traps-of-ref-locals-and-ref-returns-in-c/)
+- Подробнее о реализации структур в CLR \[RU\\EN\] - Jeffrey Richter - CLR via C# - ch. 5 Primitive, Reference, and Value Types - Reference Types and Value Types
+- [ErrorProne.NET - Набор Roslyn анализаторов, включающих анализ использования struct'ов](https://github.com/SergeyTeplyakov/ErrorProne.NET#struct-analyzers)
