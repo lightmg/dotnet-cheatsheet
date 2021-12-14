@@ -1,4 +1,5 @@
 # dotnet-cheatsheet
+![](https://komarev.com/ghpvc/?username=lightmg-dotnet-cheatsheet&label=views)
 ## Содержимое
 - [structs](./structs)
 - [records](./records)
